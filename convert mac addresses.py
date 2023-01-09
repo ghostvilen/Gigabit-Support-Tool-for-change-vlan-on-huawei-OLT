@@ -10,7 +10,7 @@ def mac():
     c.update()
     c.destroy()
     user_input =str(clip)
-    mac = str(user_input).lower().replace(' ', '')
+    mac = str(user_input).lower().replace(' ', '').strip()
     mac_bez = mac.replace('.', '').replace(':','').replace('-','').replace('_','')
     step1 = 2
     utm=':'.join(mac_bez[i:i + step1] for i in range(0, 12 , step1))
@@ -39,7 +39,7 @@ def mac_bdcom():
     c.update()
     c.destroy()
     user_input =str(clip)
-    mac = str(user_input).lower().replace(' ', '')
+    mac = str(user_input).lower().replace(' ', '').strip()
     mac_bez = mac.replace('.', '').replace(':','').replace('-','').replace('_','')
     step2 = 4
     bdcom='.'.join(mac_bez[i:i + step2] for i in range(0, 12 , step2))
