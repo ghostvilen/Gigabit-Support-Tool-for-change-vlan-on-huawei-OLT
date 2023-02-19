@@ -11,6 +11,7 @@ def die(connect, message):
     connect.close()
     sys.exit(1)
 
+usage()
 host = sys.argv[1]
 oldVlan = sys.argv[2]
 newVlan = sys.argv[3]
