@@ -34,7 +34,7 @@ mac_sn =  #пользовательский ввод с интерфейса ent
 mac_sn_clean = mac_sn.upper().replace('-', '').replace('.', '').replace(':', '').replace('  ', '') #удаляем все лишние символы с строки пользовательского ввода
 ####
 if len(mac_sn_clean) < 13:                                                                       #если пользовательский ввод меньше 13 символов, это епон и применяеться поиск по маку ону терминала
-        mac = mac_sn_clean[:4] + '-' + fcb[4:8] + '-' + fcb[8:12]
+        mac = mac_sn_clean[:4] + '-' + mac_sn_clean[4:8] + '-' + mac_sn_clean[8:12]
         connect.read_until(b'>')
         connect.write(f'display ont info by-mac {mac}\n'.encode())
 
