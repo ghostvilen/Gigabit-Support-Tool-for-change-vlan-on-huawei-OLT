@@ -1,4 +1,7 @@
 import sys
+import telnetlib
+import time
+
 
 def usage():
 if len(sys.argv) < 4:
