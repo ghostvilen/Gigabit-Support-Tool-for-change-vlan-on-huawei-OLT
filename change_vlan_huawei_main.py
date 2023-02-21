@@ -31,7 +31,7 @@ connect.write(b'con\n')
 connect.write(b'undo alarm output all\n') # выключает Fault Management Commands
 ###
 mac_sn =  #пользовательский ввод с интерфейса entry_user.get()
-mac_sn_clean = mac_sn.upper().replace('-', '').replace('.', '').replace(':', '').replace('  ', '') #удаляем все лишние символы с строки пользовательского ввода
+mac_sn_clean = mac_sn.upper().replace('-', '').replace('.', '').replace(':', '').replace('  ', '').strip() #удаляем все лишние символы с строки пользовательского ввода
 ####
 if len(mac_sn_clean) < 13:                                                                       #если пользовательский ввод меньше 13 символов, это епон и применяеться поиск по маку ону терминала
         mac = mac_sn_clean[:4] + '-' + mac_sn_clean[4:8] + '-' + mac_sn_clean[8:12]
@@ -105,9 +105,9 @@ if len(mac_sn_clean) < 13:
 else:
     connect.write(f'interface gpon {F}/{S}\n'.encode())
 connect.read_until(b'#')
-connect.write(f'ont port attribute {P} {ID} eth 1 operational-state off'.encode())
-connect.read_until(b'#', timeout=5)
-connect.write(f'ont port attribute {P} {ID} eth 1 operational-state on'.encode())
+connect.write(f'ont reset {P} {ID} \n'.encode())
+connect.read_until(b':', timeout=1)
+connect.write(f'y\n'.encode())
 connect.write(b'quit\n')
 connect.write(f'alarm output all\n'.encode())
 #sys.exit(0)
