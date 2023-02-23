@@ -99,7 +99,8 @@ else:
         die('Что-то пошло не так...', connect)
 connect.read_until(b':')
 connect.write(b'\n')
-# отключаем эзер на пару секунд чтобы роутер потерял шлюз и запросил новую лизу 
+
+
 if len(mac_sn_clean) < 13:
     connect.write(f'interface epon {F}/{S}\n'.encode())
 else:
