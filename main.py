@@ -1,3 +1,4 @@
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox
 import re
@@ -405,6 +406,7 @@ class Ui_Dialog(object):
                 error_box.setWindowTitle("Ошибка")
                 error_box.setText(message)
                 error_box.exec()
+            
             selected_item = self.comboBox.currentText()  # Получение выбранного элемента из QComboBox
         #if selected_item in self.data:
             host = self.data[selected_item]['host']
@@ -474,6 +476,7 @@ class Ui_Dialog(object):
                     ui.label_3.setText(mac_address)
                     ui.label_5.setText(mac_address)
                     #find_manufacturer
+                    converted_text =re.sub(r'[^a-fA-F0-9]', '', mac_address)
                     find_manufacturer=converted_text[:6].upper()
                     oui_database = load_oui_database()
                     if find_manufacturer in oui_database:
