@@ -524,7 +524,7 @@ class Ui_Dialog(object):
         self.pushButton_3.setText(_translate("Dialog", "Последнее"))
         self.pushButton_4.setText(_translate("Dialog", "сменить VLAN"))
         self.pushButton_5.setText(_translate("Dialog", "МAC за терминалом"))
-        self.label.setText(_translate("Dialog", "MAC для ютм"))
+        self.label.setText(_translate("Dialog", "MAC для UTM"))
         self.label_2.setText(_translate("Dialog", "MAC для bdcom"))
         self.label_3.setText(_translate("Dialog", "Последнее"))
         self.label_4.setText(_translate("Dialog", "F/S/P ont ID"))
