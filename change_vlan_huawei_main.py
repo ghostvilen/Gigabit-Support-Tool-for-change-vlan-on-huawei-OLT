@@ -1,4 +1,3 @@
-
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox
 import re
@@ -7,16 +6,11 @@ import telnetlib
 import time
 import sys
 import os
-import platform
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
-from pathlib import Path
-from datetime import datetime
-
 # загрузка логина и пароля на оборудование 
 load_dotenv('SupportTool\DB.env')
-
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -32,9 +26,7 @@ class Ui_Dialog(object):
         Dialog.setWindowFlags(flags | QtCore.Qt.WindowType.WindowMinimizeButtonHint)
            # Добавление значка окна
         icon = QtGui.QIcon("SupportTool\gigabit_logo.png")
-        Dialog.setWindowIcon(icon)
-        
-        
+        Dialog.setWindowIcon(icon)        
         self.pushButton = QtWidgets.QPushButton(parent=Dialog)
         self.pushButton.setGeometry(QtCore.QRect(230, 10, 170, 30))
         self.pushButton.setMouseTracking(True)
@@ -54,9 +46,7 @@ class Ui_Dialog(object):
         checkBoxes = Dialog.findChildren(QtWidgets.QCheckBox)
         if len(checkBoxes) > 0:
             # Выбираем первый флажок
-            checkBox = checkBoxes[0]
-
-        
+            checkBox = checkBoxes[0]  
         self.comboBox = QtWidgets.QComboBox(parent=Dialog)
         self.comboBox.setGeometry(QtCore.QRect(10, 130, 200, 30))
         self.comboBox.setObjectName("comboBox")
@@ -153,9 +143,6 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         
-        
-    
-
     def show_error_message(self, message):
         error_box = QtWidgets.QMessageBox()
         error_box.setIcon(QtWidgets.QMessageBox.Icon.Critical)
@@ -171,16 +158,13 @@ class Ui_Dialog(object):
                 error_box.setWindowTitle("Ошибка")
                 error_box.setText(message)
                 error_box.exec()
-            
-            ###
+
             selected_item = self.comboBox.currentText()  # Получение выбранного элемента из QComboBox
         #if selected_item in self.data:
             host = self.data[selected_item]['host']
             vlan = self.data[selected_item]['vlan']
-            print(f"Host: {host}, VLAN: {vlan}")    
             cb=self.lineEdit.text()
             fcb =re.sub(r'[^a-fA-F0-9]', '', cb.upper())
-            print(fcb)
             DB_USERNAME = os.getenv("DB_USERNAME")
             DB_PASSWORD = os.getenv("DB_PASSWORD")
             connect = telnetlib.Telnet(host)
@@ -197,14 +181,12 @@ class Ui_Dialog(object):
                 mac = fcb[:4] + '-' + fcb[4:8] + '-' + fcb[8:12]
                 connect.read_until(b'#')
                 connect.write(f'display ont info by-mac {mac}\n'.encode())
-                print(f'display ont info by-mac {mac}')
                 connect.write(b'q')
     
             else:
                 sn = fcb
                 connect.read_until(b'#')
                 connect.write(f'display ont info by-sn {sn}\n'.encode())
-                print(f'display ont info by-sn {sn}')
                 connect.write(b'q')         
             #find FSP ID-ont
             try:
@@ -219,16 +201,13 @@ class Ui_Dialog(object):
                 S = ''.join(filter(str.isdigit, port[2]))
                 P = ''.join(filter(str.isdigit, port[4:7]))
                 ID = ''.join(filter(str.isdigit, port[-10:]))
-                print("F: " + F + " S: " + S + " P: " + P + " ID: " + ID)
                 FSPID=f'{F}/{S}/{P} ont ID {ID}'
                 ui.label_4.setText(FSPID)
             except ValueError as ve:
-                print("Ошибка:", ve)
                 show_error_message(str(ve))
                 connect.close()
                 break
             except Exception as e:
-                print("Произошла ошибка:", e)
                 show_error_message(str(e))
                 connect.close()    
                 break        
@@ -238,7 +217,6 @@ class Ui_Dialog(object):
                 connect.write(f'display service-port port {F}/{S}/{P} ont {ID}\n'.encode())
                 connect.read_until(b':')
                 connect.write(b'\n')
-                print("Пробую найти сервис-порт")
                 find_service_port= connect.read_until(b'Total', timeout=5)
                 if b'Total' not in find_service_port:
                     raise ValueError("нет сервис порта или данных")
@@ -248,15 +226,12 @@ class Ui_Dialog(object):
                 substring = find_service_port[start:end]
                 substring=substring.lstrip()
                 sp=substring.split()[0]
-                print(sp)   
                 
             except ValueError as ve:
-                print("Ошибка:", ve)
                 show_error_message(str(ve))
                 connect.close()
                 break
             except Exception as e:
-                print("Произошла ошибка:", e)
                 show_error_message(str(e))
                 connect.close()
                 break            
@@ -268,7 +243,6 @@ class Ui_Dialog(object):
                 if "Failure: There is not any MAC address record" in mac_address:
                     raise ValueError("нет мак адреса за портом или что-то пошло не так")
                 
-                    
                 if len(fcb) < 13:
                     start_index_mac = mac_address.index("epon") + 5  # Индекс после "gpon "
                     end_index_mac = mac_address.index("dynamic", start_index_mac) - 1  # Индекс перед "dynamic"
@@ -278,7 +252,6 @@ class Ui_Dialog(object):
                     mac_address = mac_address[:17]
                     ui.label_3.setText(mac_address)
                     ui.label_5.setText(mac_address)
-                    print(mac_address)
                     #find_manufacturer
                     find_manufacturer=converted_text[:6].upper()
                     oui_database = load_oui_database()
@@ -298,9 +271,7 @@ class Ui_Dialog(object):
                     mac_address = mac_address[:17]
                     ui.label_3.setText(mac_address)
                     ui.label_5.setText(mac_address)
-                    print(mac_address)
                     find_manufacturer=mac_address[:6].upper()
-                    print(find_manufacturer)
                     oui_database = load_oui_database()
                     converted_text =re.sub(r'[^a-fA-F0-9]', '', mac_address)
                 #find_manufacturer
@@ -312,17 +283,12 @@ class Ui_Dialog(object):
                     else:
                         ui.label_6.setText('Manufacturer not found')
                         converted_text = ':'.join([converted_text[i:i+2] for i in range(0, 12, 2)])
-                        
-                    
+                            
             except ValueError as ve:
-                print("Ошибка:", ve)
                 show_error_message(str(ve))
-                connect.close()
                 pass
             except Exception as e:
-                print("Произошла ошибка:", e)
                 show_error_message(str(e))
-                connect.close()
                 pass                       
             #service-port, new vlan
             try:
@@ -330,27 +296,22 @@ class Ui_Dialog(object):
                     raise ValueError("нет сервис порта или данных")
                 connect.write(f'undo service-port {sp}\n'.encode())
                 connect.read_until(b'#')
-                print(f'Новый влан: {vlan}')
                     
                 if len(fcb) < 13:
                     srv_set = f'service-port {sp} vlan {vlan} epon {F}/{S}/{P} ont {ID} multi-service user-vlan 10 tag-transform translate\n' 
                     connect.write(srv_set.encode()) 
-                    print(srv_set)
                     connect.read_until(b':')
                     connect.write(b'\n')
                 else: 
                     srv_set = f'service-port {sp} vlan {vlan} gpon {F}/{S}/{P} ont {ID} gemport 1 multi-service user-vlan 10 tag-transform translate\n' 
                     connect.write(srv_set.encode()) 
-                    print(srv_set)
                     connect.read_until(b':')
                     connect.write(b'\n')
             except ValueError as ve:
-                print("Ошибка:", ve)
                 show_error_message(str(ve))
                 connect.close()
                 break
             except Exception as e:
-                print("Произошла ошибка:", e)
                 show_error_message(str(e))
                 connect.close()
                 break  
@@ -358,79 +319,65 @@ class Ui_Dialog(object):
             checkBox = self.checkBox   # Получаем отправителя сигнала
             if checkBox.isChecked():
             # Флажок нажат
-                print('Флажок нажат')
                 #reboot onu 
                 try:
                     if not F.isdigit():
                         raise ValueError("нет сервис порта или данных")
                     if len(fcb) < 13:
                         connect.write(f'interface epon {F}/{S}\n\n'.encode())
-                        print(f'interface epon {F}/{S}')
                         connect.read_until(b'#')
                         connect.write(f'ont reset {P} {ID}\n'.encode())
                         connect.read_until(b':', timeout=1)
                         connect.write(f'y\n'.encode())
                         connect.write(b'quit\n')
-                        print('quit')
                         connect.write(b'alarm output all\n')
                         connect.close()
                     else :
                         connect.write(f'interface gpon {F}/{S}\n\n'.encode())
-                        print(f'interface gpon {F}/{S}\n')
                         connect.read_until(b'#')
                         connect.write(f'ont reset {P} {ID}\n'.encode())
                         connect.read_until(b':', timeout=1)
                         connect.write(f'y\n'.encode())
                         connect.write(b'quit\n')
-                        print('quit')
                         connect.write(b'alarm output all\n')
                         connect.close()
                 except ValueError as ve:
-                    print("Ошибка:", ve)
                     show_error_message(str(ve))
                     connect.close()
                     break
                 except Exception as e:
-                    print("Произошла ошибка:", e)
                     show_error_message(str(e))
                     connect.close()
                     break          
             else:
             # Флажок не нажат
-                print('Флажок не нажат')
                 #reboot ether port onu 
                 try:
                     if not F.isdigit():
                         raise ValueError("нет сервис порта или данных")
                     if len(fcb) < 13:
                         connect.write(f'interface epon {F}/{S}\n\n'.encode())
-                        print(f'interface epon {F}/{S}')
                         connect.read_until(b'#')
                         connect.write(f'ont port attribute {P} {ID} eth 1 operational-state off \n'.encode())
                         time.sleep(3)
                         connect.write(f'ont port attribute {P} {ID} eth 1 operational-state on \n'.encode())
                         connect.write(b'quit\n')
-                        print('quit')
                         connect.write(b'alarm output all\n')
                         connect.close()
                     else :
                         connect.write(f'interface gpon {F}/{S}\n\n'.encode())
-                        print(f'interface gpon {F}/{S}\n')
                         connect.read_until(b'#')
                         connect.write(f'ont port attribute {P} {ID} eth 1 operational-state off \n'.encode())
                         time.sleep(3)
                         connect.write(f'ont port attribute {P} {ID} eth 1 operational-state on \n'.encode())
                         connect.write(b'quit\n')
-                        print('quit')
                         connect.write(b'alarm output all\n')
                         connect.close()
                 except ValueError as ve:
-                    print("Ошибка:", ve)
                     show_error_message(str(ve))
                     connect.close()
                     break
                 except Exception as e:
-                    print("Произошла ошибка:", e)
                     show_error_message(str(e))
                     connect.close()
                     break 
@@ -458,16 +405,12 @@ class Ui_Dialog(object):
                 error_box.setWindowTitle("Ошибка")
                 error_box.setText(message)
                 error_box.exec()
-            
-            ###
             selected_item = self.comboBox.currentText()  # Получение выбранного элемента из QComboBox
         #if selected_item in self.data:
             host = self.data[selected_item]['host']
-            vlan = self.data[selected_item]['vlan']
-            print(f"Host: {host}, VLAN: {vlan}")    
+            vlan = self.data[selected_item]['vlan']  
             cb=self.lineEdit.text()
             fcb =re.sub(r'[^a-fA-F0-9]', '', cb.upper())
-            print(fcb)
             DB_USERNAME = os.getenv("DB_USERNAME")
             DB_PASSWORD = os.getenv("DB_PASSWORD")
             connect = telnetlib.Telnet(host)
@@ -484,14 +427,12 @@ class Ui_Dialog(object):
                 mac = fcb[:4] + '-' + fcb[4:8] + '-' + fcb[8:12]
                 connect.read_until(b'#')
                 connect.write(f'display ont info by-mac {mac}\n'.encode())
-                print(f'display ont info by-mac {mac}')
                 connect.write(b'q')
     
             else:
                 sn = fcb
                 connect.read_until(b'#')
                 connect.write(f'display ont info by-sn {sn}\n'.encode())
-                print(f'display ont info by-sn {sn}')
                 connect.write(b'q')         
             #find FSP ID-ont
             try:
@@ -506,14 +447,11 @@ class Ui_Dialog(object):
                 S = ''.join(filter(str.isdigit, port[2]))
                 P = ''.join(filter(str.isdigit, port[4:7]))
                 ID = ''.join(filter(str.isdigit, port[-10:]))
-                print("F: " + F + " S: " + S + " P: " + P + " ID: " + ID)
             except ValueError as ve:
-                print("Ошибка:", ve)
                 show_error_message(str(ve))
                 connect.close()
                 break
             except Exception as e:
-                print("Произошла ошибка:", e)
                 show_error_message(str(e))
                 connect.close()    
                 break        
@@ -535,7 +473,6 @@ class Ui_Dialog(object):
                     mac_address = mac_address[:17]
                     ui.label_3.setText(mac_address)
                     ui.label_5.setText(mac_address)
-                    print(mac_address)
                     #find_manufacturer
                     find_manufacturer=converted_text[:6].upper()
                     oui_database = load_oui_database()
@@ -555,9 +492,7 @@ class Ui_Dialog(object):
                     mac_address = mac_address[:17]
                     ui.label_3.setText(mac_address)
                     ui.label_5.setText(mac_address)
-                    print(mac_address)
                     find_manufacturer=mac_address[:6].upper()
-                    print(find_manufacturer)
                     oui_database = load_oui_database()
                     converted_text =re.sub(r'[^a-fA-F0-9]', '', mac_address)
                 #find_manufacturer
@@ -572,12 +507,10 @@ class Ui_Dialog(object):
                         
                     
             except ValueError as ve:
-                print("Ошибка:", ve)
                 show_error_message(str(ve))
                 connect.close()
                 break
             except Exception as e:
-                print("Произошла ошибка:", e)
                 show_error_message(str(e))
                 connect.close()
                 break                       
@@ -630,7 +563,6 @@ def convert_and_update_label_utm():
                 converted_text = ':'.join([converted_text[i:i+2] for i in range(0, 12, 2)])
                 # Запись в буфер обмена
                 clipboard.setText(converted_text)
-                print(converted_text)
                 ui.label.setText(converted_text)
                 ui.label_3.setText(converted_text)
                 
@@ -646,7 +578,6 @@ def convert_and_update_label_bdcom():
                 
                 # Запись в буфер обмена
                 clipboard.setText(converted_text)
-                print(converted_text)
                 ui.label_2.setText(converted_text)
                 ui.label_3.setText(converted_text)
                 
@@ -657,7 +588,7 @@ def copy_last_convert():
 
 def load_oui_database():
     database = {}
-    with open('my scripts\oui.csv', 'r', encoding='utf-8') as file:
+    with open('SupportTool\oui.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
             if row[0] == "MA-L":
