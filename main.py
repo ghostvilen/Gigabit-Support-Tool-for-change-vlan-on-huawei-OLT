@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 # загрузка логина и пароля на оборудование 
-load_dotenv('SupportTool\DB.env')
+load_dotenv('DB.env')
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -26,7 +26,7 @@ class Ui_Dialog(object):
         flags = Dialog.windowFlags()
         Dialog.setWindowFlags(flags | QtCore.Qt.WindowType.WindowMinimizeButtonHint)
            # Добавление значка окна
-        icon = QtGui.QIcon("SupportTool\gigabit_logo.png")
+        icon = QtGui.QIcon("gigabit_logo.png")
         Dialog.setWindowIcon(icon)        
         self.pushButton = QtWidgets.QPushButton(parent=Dialog)
         self.pushButton.setGeometry(QtCore.QRect(230, 10, 170, 30))
@@ -52,7 +52,7 @@ class Ui_Dialog(object):
         self.comboBox.setGeometry(QtCore.QRect(10, 130, 200, 30))
         self.comboBox.setObjectName("comboBox")
         # Открытие списка олтов
-        with open('SupportTool\olt.csv', encoding='utf-8') as tsv_file:
+        with open('olt.csv', encoding='utf-8') as tsv_file:
                 reader = csv.reader(tsv_file, delimiter=',')
                 self.data = {row[0]: {'host': row[1], 'vlan': row[2]} for row in reader}
         #Заполнить выпадающий список
@@ -254,6 +254,7 @@ class Ui_Dialog(object):
                     ui.label_3.setText(mac_address)
                     ui.label_5.setText(mac_address)
                     #find_manufacturer
+                    converted_text =re.sub(r'[^a-fA-F0-9]', '', mac_address)
                     find_manufacturer=converted_text[:6].upper()
                     oui_database = load_oui_database()
                     if find_manufacturer in oui_database:
@@ -283,7 +284,6 @@ class Ui_Dialog(object):
                         ui.label_6.setText(find_manufacturer)
                     else:
                         ui.label_6.setText('Manufacturer not found')
-                        converted_text = ':'.join([converted_text[i:i+2] for i in range(0, 12, 2)])
                             
             except ValueError as ve:
                 show_error_message(str(ve))
@@ -374,6 +374,14 @@ class Ui_Dialog(object):
                         connect.write(b'quit\n')
                         connect.write(b'alarm output all\n')
                         connect.close()
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Information)  # Установка иконки
+                    msg_box.setWindowTitle("Готово")  # Установка заголовка
+                    msg_box.setText("Выполнено успешно!")  # Установка текста
+                    msg_box.setInformativeText("Действие завершено.")  # Установка дополнительной информации
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok )  # Установка стандартных кнопо
+                    msg_box.setText("Готово")
+                    msg_box.exec()     
                 except ValueError as ve:
                     show_error_message(str(ve))
                     connect.close()
@@ -383,9 +391,9 @@ class Ui_Dialog(object):
                     connect.close()
                     break 
             desktop_path = Path.home()
-            file_path = desktop_path / "log_onu_change_vlan.txt"
+            file_path = "log_onu_change_vlan.txt"
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            values = [host, fcb, F, S, P, ID,  mac_address,   current_time]
+            values = [host, fcb, F, S, P, ID,  current_time]
             line = " ".join(str(value) for value in values)
             with open(file_path, "a+") as file:
                 file.seek(0)
@@ -396,7 +404,7 @@ class Ui_Dialog(object):
                     # Файл не существует или является пустым
                     file.write(line) 
             break
-                           
+                     
 
     def show_mac_router(self):
         while True  :    ####
@@ -449,6 +457,8 @@ class Ui_Dialog(object):
                 S = ''.join(filter(str.isdigit, port[2]))
                 P = ''.join(filter(str.isdigit, port[4:7]))
                 ID = ''.join(filter(str.isdigit, port[-10:]))
+                FSPID=f'{F}/{S}/{P} ont ID {ID}'
+                ui.label_4.setText(FSPID)
             except ValueError as ve:
                 show_error_message(str(ve))
                 connect.close()
@@ -507,6 +517,16 @@ class Ui_Dialog(object):
                     else:
                         ui.label_6.setText('Manufacturer not found')
                         converted_text = ':'.join([converted_text[i:i+2] for i in range(0, 12, 2)])
+                        # msg bog gotovo 
+                        
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Information)  # Установка иконки
+                    msg_box.setWindowTitle("Готово")  # Установка заголовка
+                    msg_box.setText("Выполнено успешно!")  # Установка текста
+                    msg_box.setInformativeText("Действие завершено.")  # Установка дополнительной информации
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok )  # Установка стандартных кнопо
+                    msg_box.setText("Готово")
+                    msg_box.exec()
                         
                     
             except ValueError as ve:
@@ -591,7 +611,7 @@ def copy_last_convert():
 
 def load_oui_database():
     database = {}
-    with open('SupportTool\oui.csv', 'r', encoding='utf-8') as file:
+    with open('oui.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
             if row[0] == "MA-L":
@@ -613,7 +633,7 @@ if __name__ == "__main__":
     global ui
     ui = Ui_Dialog()
     ui.setupUi(Dialog)
-    load_dotenv('SupportTool\pyqt_test\DB.env')
+    load_dotenv('DB.env')
     Dialog.show()
     sys.exit(app.exec())
     dialog = CustomDialog()
