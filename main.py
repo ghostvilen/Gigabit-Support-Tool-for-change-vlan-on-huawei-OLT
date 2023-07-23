@@ -1,4 +1,3 @@
-
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox
 import re
@@ -10,6 +9,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
+from PyQt6.QtCore import QTimer
 # загрузка логина и пароля на оборудование 
 load_dotenv('DB.env')
 class Ui_Dialog(object):
@@ -342,6 +342,8 @@ class Ui_Dialog(object):
                         connect.write(b'quit\n')
                         connect.write(b'alarm output all\n')
                         connect.close()
+                    
+
                 except ValueError as ve:
                     show_error_message(str(ve))
                     connect.close()
@@ -374,14 +376,8 @@ class Ui_Dialog(object):
                         connect.write(b'quit\n')
                         connect.write(b'alarm output all\n')
                         connect.close()
-                    msg_box = QMessageBox()
-                    msg_box.setIcon(QMessageBox.Icon.Information)  # Установка иконки
-                    msg_box.setWindowTitle("Готово")  # Установка заголовка
-                    msg_box.setText("Выполнено успешно!")  # Установка текста
-                    msg_box.setInformativeText("Действие завершено.")  # Установка дополнительной информации
-                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok )  # Установка стандартных кнопо
-                    msg_box.setText("Готово")
-                    msg_box.exec()     
+                    
+
                 except ValueError as ve:
                     show_error_message(str(ve))
                     connect.close()
@@ -390,7 +386,6 @@ class Ui_Dialog(object):
                     show_error_message(str(e))
                     connect.close()
                     break 
-            desktop_path = Path.home()
             file_path = "log_onu_change_vlan.txt"
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             values = [host, fcb, F, S, P, ID,  current_time]
@@ -517,16 +512,8 @@ class Ui_Dialog(object):
                     else:
                         ui.label_6.setText('Manufacturer not found')
                         converted_text = ':'.join([converted_text[i:i+2] for i in range(0, 12, 2)])
-                        # msg bog gotovo 
-                        
-                    msg_box = QMessageBox()
-                    msg_box.setIcon(QMessageBox.Icon.Information)  # Установка иконки
-                    msg_box.setWindowTitle("Готово")  # Установка заголовка
-                    msg_box.setText("Выполнено успешно!")  # Установка текста
-                    msg_box.setInformativeText("Действие завершено.")  # Установка дополнительной информации
-                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok )  # Установка стандартных кнопо
-                    msg_box.setText("Готово")
-                    msg_box.exec()
+                    
+
                         
                     
             except ValueError as ve:
